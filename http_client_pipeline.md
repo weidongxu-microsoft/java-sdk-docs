@@ -2,7 +2,7 @@
 
 ## HTTP clients
 
-The Azure SDK for Java is implemented using an `HttpClient` abstraction, which means that it has a pluggable architecture to enable support for multiple HTTP clients, as well as custom implementations when the need arises. However, because an Azure Java client library that does not know how to actually communicate over HTTP would be undesirable, the `azure-core` base library includes a default dependency on the `azure-core-http-netty` library, which means that, by default, all Azure client libraries use [Netty](https://netty.io).
+The Azure SDK for Java is implemented using an `HttpClient` abstraction, which means that it has a pluggable architecture to enable support for multiple HTTP clients, as well as custom implementations when the need arises. However, because an Azure Java client library that does not know how to actually communicate over HTTP would be undesirable, the client libraries includes a default dependency on the `azure-core-http-netty` library, which means that, by default, all Azure client libraries use [Netty](https://netty.io).
 
 Despite Netty being the default HTTP client used by all Azure client libraries, there are three implementations available for use by developers, depending on which dependencies they already have in their project. These are implementations for:
 

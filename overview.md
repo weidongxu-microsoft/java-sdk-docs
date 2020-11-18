@@ -37,7 +37,7 @@ For details on working with each client library, see the README.md file located 
 
 ## Get help and connect with the SDK team
 
-Visit the [Azure libraries for Java documentation](https://aka.ms/java-docs)
-Post questions to the community on [Stack Overflow](https://stackoverflow.com/questions/tagged/azure-sdk-for-java)
-Open issues against the SDK on [GitHub](https://github.com/Azure/azure-sdk-for-java/issues)
-Mention [@AzureSDK](https://twitter.com/AzureSdk/) on Twitter
+* Visit the [Azure libraries for Java documentation](https://aka.ms/java-docs)
+* Post questions to the community on [Stack Overflow](https://stackoverflow.com/questions/tagged/azure-sdk-for-java)
+* Open issues against the SDK on [GitHub](https://github.com/Azure/azure-sdk-for-java/issues)
+* Mention [@AzureSDK](https://twitter.com/AzureSdk/) on Twitter

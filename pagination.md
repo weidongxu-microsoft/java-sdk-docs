@@ -36,7 +36,7 @@ client.listSecrets()
 ```java
 Iterator<Secret> secrets = client.listSecrets().iterator();
 while (it.hasNext()) {
-   System.out.println("Secret is: " + it.next);
+   System.out.println("Secret is: " + it.next());
 }
 ```
 
@@ -49,7 +49,9 @@ When working with individual pages is required, for example for when HTTP respon
 ```java
 Iterable<PagedResponse<Secret>> secretPages = client.listSecrets().iterableByPage();
 for (PagedResponse<Secret> page : secretPages) {
-   System.out.println("Secret page is: " + page);
+   System.out.println("Response code: " + page.getStatusCode());
+   System.out.println("Continuation Token: " + page.getContinuationToken());
+   page.getElements().forEach(secret -> System.out.println("Secret value: " + secret))
 }
 ```
 
@@ -58,86 +60,45 @@ for (PagedResponse<Secret> page : secretPages) {
 ```java
 client.listSecrets()
       .streamByPage()
-      .forEach(page -> System.out.println("Secret page is: " + page));
+      .forEach(page -> {
+          System.out.println("Response code: " + page.getStatusCode());
+          System.out.println("Continuation Token: " + page.getContinuationToken());
+          page.getElements().forEach(secret -> System.out.println("Secret value: " + secret))
+      });
 ```
 
-When using PagedIterable, iterating by page will result in fetching the first page of results and in addition to the first page, an additional page is eagerly retrieved as the underlying publishers for the first page and the next page are concatenated. This is because the iterable is created by stringing together a series of `Mono` publishers and when the first page is retrieved, the underlying flux needs to know whether to complete the flux or to wait for more data from the concatenated `Mono`. `PagedFlux` doesn't require this eager retrieval as the flux is directly handed to the user and nothing happens until user subscribes and depending on the subscription type, the flux will fetch only the necessary pages lazily.
+## Asynchronously observing pages and individual elements
 
-## Lazy generation of continuation token
-Most Azure services that support pagination will provide a continuation token in the response and clients can directly use this continuation token to request for the next page. However, some services, like Cosmos, generate continuation token on the client-side using complex operations which can be quite expensive. To support such scenarios, Java has a `Page` interface that can be implemented by custom paged responses to lazily generate the continuation token when requested. See below example:
+### Observing individual elements
 
-```java
-public class LazyPagedResponse implements PagedResponse<String> {
+The code sample below shows how the `PagedFlux` API allows users to observe individual elements asynchronously.
+ 
+ ```java
+asyncClient.listSecrets()
+    .subscribe(secret -> System.out.println("Secret value: " + secret),
+        ex -> System.out.println("Error listing secrets: " + ex.getMessage()),
+        () -> System.out.println("Successfully listed all secrets"));
 
-    private final List<String> items;
-    private final Supplier<String> lazyContinuationTokenSupplier;
-    private final int statusCode;
-    private final HttpHeaders headers;
-    private final HttpRequest httpRequest;
-
-    public LazyPagedResponse(List<String> items, Supplier<String> lazyContinuationTokenSupplier, int statusCode,
-        HttpHeaders headers, HttpRequest httpRequest) {
-        this.items = items;
-        this.lazyContinuationTokenSupplier = lazyContinuationTokenSupplier;
-        this.statusCode = statusCode;
-        this.headers = headers;
-        this.httpRequest = httpRequest;
-    }
-    @Override
-    public List<String> getItems() {
-        return this.items;
-    }
-
-    @Override
-    public String getContinuationToken() {
-        return this.lazyContinuationTokenSupplier.get();
-    }
-
-    @Override
-    public int getStatusCode() {
-        return this.statusCode;
-    }
-
-    @Override
-    public HttpHeaders getHeaders() {
-        return this.headers;
-    }
-
-    @Override
-    public HttpRequest getRequest() {
-        return this.httpRequest;
-    }
-
-    @Override
-    public void close() throws IOException {
-
-    }
-}
-```
-To test:
-
-```java
-    @Test
-    public void testLazyPagedResponse() {
-        Supplier<String> expensiveContinuationTokenGenerator = () -> {
-            try {
-                // expensive operation
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException ex) {
-            }
-            System.out.println("Generating new continuation token");
-            return UUID.randomUUID().toString();
-        };
-
-        LazyPagedResponse response = new LazyPagedResponse(Arrays.asList("foo", "bar"),
-            expensiveContinuationTokenGenerator, 200, null, null);
-        System.out.println(response.getItems());
-        System.out.println(response.getStatusCode());
-        // Continuation token is not generated until it's required
-        System.out.println(response.getContinuationToken());
-   }
-```
-
-## Asynchronous Pagination and Iteration
-
-> TODO
+TimeUnit.SECONDS.sleep(5);
+ ```
+ 
+>**Note:** Since the network calls happens in a different thread than the main-thread that calls `subscribe()`, the main-thread may terminate before the result is available; to avoid this, the main-thread sleeps few seconds.
+ 
+ ### Observing pages
+ 
+ The code sample below shows how the `PagedFlux` API allows users to observe each page asynchronously.
+ 
+  ```java
+asyncClient.listSecrets().byPage()
+    .subscribe(page -> {
+            System.out.println("Response code: " + page.getStatusCode());
+            System.out.println("Continuation Token: " + page.getContinuationToken());
+            page.getElements().forEach(secret -> System.out.println("Secret value: " + secret))
+        },
+        ex -> System.out.println("Error listing pages with secret: " + ex.getMessage()),
+        () -> System.out.println("Successfully listed all pages with secret"));
+        
+TimeUnit.SECONDS.sleep(5);
+ ```
+ 
+>**Note:** Since the network calls happens in a different thread than the main-thread that calls `subscribe()`, the main-thread may terminate before the result is available; to avoid this, the main-thread sleeps few seconds.

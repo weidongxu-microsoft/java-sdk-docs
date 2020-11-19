@@ -1,10 +1,55 @@
 # Long-running operations
 
-## PollerFlux
+Certain operations on Azure may take extended processing times for its completion. For example, copying data from a source URL to a Storage blob or training a model to recognize forms are operations that may take a few seconds to several minutes. Such operations are referred to as Long Running Operations (LRO).
 
-`PollerFlux` is the client side abstraction to interact with server side Long Running Operations (LRO). It is a Flux to which multiple subscribers interested in the LRO events can subscribe.
+`PollerFlux` is the client side abstraction to interact with server side Long Running Operations (LRO) asychronously. It is a Flux to which multiple subscribers interested in the LRO events can subscribe. For methods that represent LRO, the Java async clients return `PollerFlux`.
 
-This page describes internals of `PollerFlux` and how to create `PollerFlux` for an LRO.
+`SyncPoller` is similar to `PollerFlux` that enables the user to interact with LRO synchronously. The Java sync clients methods for LRO returns `SyncPoller`.
+
+## Using PollerFlux
+
+Typically the azure services acknowledge the user request to start the LRO by returning a "request-id" immediately. The "request-id" can be used to poll the service periodically to get the operation's status. When the operation status indicates that the operation completed successfully or failed, the polling stops. The client can then request the final response of the operation.
+
+Once subscribed to the `PollerFlux` instance returned from async client LRO methods, it performs the polling periodically, and the result of each poll will be delivered to the subscriber.
+
+The following example shows how to inspect the status of each poll:
+
+```java
+asyncClient
+    .subscribe(response -> System.out.println("Status of long running operation: " + response.getStatus()));
+
+TimeUnit.SECONDS.sleep(5);
+```
+
+>**Note:** Since the network calls associated with the polling happens in a different thread than the main-thread that calls `subscribe()`, the main-thread may terminate before the poll result is available; to avoid this, the main-thread sleeps few seconds.
+
+You can retrieve the final result of the LRO operation; you will need to wait for all the polling to complete for this. You can inspect the last poll result, and if it indicates that the LRO operation is completed successfully, then final result can be retrieved.
+
+The following sample code using `last()` operator to wait for all polling to complete, then retrieve the final result if LRO succeeded.
+
+```java
+CountDownLatch countDownLatch = new CountDownLatch(1);
+asyncClient.beginRecognizeContentFromUrl("{form-url")
+    .last()
+    .flatMap(response -> {
+        if (LongRunningOperationStatus.SUCCESSFULLY_COMPLETED == response.getStatus()) {
+            return response.getFinalResult();
+        }
+        return Mono.error(new IllegalStateException("Polling completed unsuccessfully with status:"
+                + response.getStatus()));
+    })
+    .subscribe(finalResult -> processFormPages(finalResult),
+        ex -> countDownLatch.countDown(),
+        () -> countDownLatch.countDown());
+
+countDownLatch.await();
+```
+
+>**Note:** The network calls associated with the polling and retrieval of the final result happen in a different thread than the main-thread that calls subscribe(). The main-thread may terminate before the completion of all such network operations; hence the main-thread uses `CountDownLatch` to wait until the LRO is complete or if an error occurs.
+
+## Internals of PollerFlux 
+
+This section describes the internals of PollerFlux and how to create one for an LRO. Note that you don't need to understand the inner working to use a PollerFlux instance returned from the Java client methods.
 
 The work that `PollerFlux` doing is two stage execution. First stage is **LRO initiation** and second stage is **LRO Poll Loop**. Following figure shows `PollerFlux` instance with 3 subscriptions.
 

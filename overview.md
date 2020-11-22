@@ -49,3 +49,12 @@ For details on working with each management library, see the README.md file loca
 * Post questions to the community on [Stack Overflow](https://stackoverflow.com/questions/tagged/azure-sdk-for-java)
 * Open issues against the SDK on [GitHub](https://github.com/Azure/azure-sdk-for-java/issues)
 * Mention [@AzureSDK](https://twitter.com/AzureSdk/) on Twitter
+
+## Next steps
+
+Now that you understand what the Azure SDK for Java is, it is time to take a deep dive into many of the cross-cutting concepts that exist to make developers productive when using the libraries. A good starting point is the documentation for the following:
+
+* [HTTP clients & pipeline](http_client_pipeline.md)
+* [Asynchronous programming](asynchronous_programming.md)
+* [Pagination & iteration](pagination.md)
+* [Long-Running operations](long_running_operations.md)

@@ -11,6 +11,9 @@ Planned structure is as follows:
     * [Pagination & iteration](pagination.md)
     * [Long-Running operations](long_running_operations.md)
   * [Configure logging](logging.md)
+    * [Logback](logback.md)
+    * [Log4J](log4j.md)
+    * [DefaultLogger](default_logger.md)
   * [Configure proxies](proxying.md)
   * [Configuration](configuration.md)
   * Identity & Authentication

@@ -136,3 +136,7 @@ HTTP pipeline for REST-based services are generally configured with policies for
 The HTTP pipeline policy provides a convenient mechanism to modify or decorate the request and response. Custom policies can be added to the pipeline that is either created by the user or by the client library developer. When adding the policy to the pipeline, you can specify if this policy should be executed per-call or per-retry.
 
 Creating a custom HTTP pipeline policy is as simple as extending a base policy type and implementing some abstract method. The policy can then be plugged in to the pipeline.
+
+## Next steps
+
+Now that you've familiarized yourself with HTTP client functionality in the Azure SDK for Java, consider reviewing the [proxying](proxying.md) and [configuration](configuration.md) documentation to learn how to further customize the HTTP client being used.

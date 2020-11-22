@@ -14,7 +14,6 @@ Planned structure is as follows:
     * [Overview](logging.md)
     * [Logback](logback.md)
     * [Log4J](log4j.md)
-    * [DefaultLogger](default_logger.md)
   * [Configure proxies](proxying.md)
   * [Configuration](configuration.md)
   * Identity & Authentication

@@ -1,8 +1,16 @@
+---
+title: HTTP clients & pipeline
+description: An overview of the Azure SDK for Java concepts related to HTTP clients and pipelines
+ms.date: 11/23/2020
+ms.topic: conceptual
+ms.custom: devx-track-java
+---
+
 # HTTP clients & pipeline
 
 ## HTTP clients
 
-The Azure SDK for Java is implemented using an `HttpClient` abstraction, which means that it has a pluggable architecture to enable support for multiple HTTP clients, as well as custom implementations when the need arises. However, because an Azure Java client library that does not know how to actually communicate over HTTP would be undesirable, the client libraries includes a default dependency on the `azure-core-http-netty` library, which means that, by default, all Azure client libraries use [Netty](https://netty.io).
+The Azure SDK for Java is implemented using an `HttpClient` abstraction, enabling a pluggable architecture that accepts multiple HTTP client libraries, as well as custom implementations when the need arises. However, to make dependency management simpler for most users, all Azure client libraries depend on `azure-core-http-netty`, resulting in the [Netty](https://netty.io) HTTP client being the default client used in all Azure libraries for Java.
 
 Despite Netty being the default HTTP client used by all Azure client libraries, there are three implementations available for use by developers, depending on which dependencies they already have in their project. These are implementations for:
 
@@ -10,11 +18,9 @@ Despite Netty being the default HTTP client used by all Azure client libraries, 
 * [OkHttp](https://square.github.io/okhttp/)
 * The new [HttpClient](https://openjdk.java.net/groups/net/httpclient/intro.html) introduced in JDK 11
 
-As noted, by default all HTTP based SDKs add the Netty implementation as a dependency. Because this is included by default, users of the Java client libraries for Azure do not need to explicitly include any dependency.
-
 ### Replacing the Default HTTP Client
 
-The dependency on Netty is removable if another implementation is preferred. This is done by excluding the Netty dependency in your build configuration files. In a Maven pom.xml, you would exclude the Netty dependency, and substitute another dependency. Note that the following example shows how the Netty dependency is excluded from a real dependency on the `azure-security-keyvault-secrets` library. Depending on the libraries readers are using, be sure to exclude Netty from all appropriate `com.azure` libraries, as such:
+The dependency on Netty is removable if another implementation is preferred. This is done by excluding the Netty dependency in build configuration files. In a Maven pom.xml, you would exclude the Netty dependency, and substitute another dependency. Note that the following example shows how the Netty dependency is excluded from a real dependency on the `azure-security-keyvault-secrets` library. Depending on the libraries readers are using, be sure to exclude Netty from all appropriate `com.azure` libraries, as such:
 
 ```xml
 <dependency>
@@ -44,7 +50,6 @@ The dependency on Netty is removable if another implementation is preferred. Thi
 
 When building a service client it will default to using `HttpClient.createDefault()`, this returns a basic `HttpClient` based on the provided HTTP client implementation. If a more complex `HttpClient` is required, such as requiring a proxy, each implementation offers a builder that allows for a configured `HttpClient` to be constructed, these are `NettyAsyncHttpClientBuilder`, `OkHttpAsyncHttpClientBuilder`, and `JdkAsyncHttpClientBuilder`. These builders will share a common set of configurations such as proxying and communication port but will contain configurations that are specific to each implementation.
 
-
 The following examples show how to build an `HttpClient` that proxies through `http://localhost:3128` and authenticates with user `example` whose password is `weakPassword`.
 
 #### Netty
@@ -52,7 +57,7 @@ The following examples show how to build an `HttpClient` that proxies through `h
 ```java
 HttpClient httpClient = new NettyAsyncHttpClientBuilder()
     .proxy(new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 3128))
-    .setCredentials("example", "weakPassword"))
+        .setCredentials("example", "weakPassword"))
     .build();
 ```
 
@@ -61,7 +66,7 @@ HttpClient httpClient = new NettyAsyncHttpClientBuilder()
 ```java
 HttpClient httpClient = new OkHttpAsyncHttpClientBuilder()
     .proxy(new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 3128))
-    .setCredentials("example", "weakPassword"))
+        .setCredentials("example", "weakPassword"))
     .build();
 ```
 
@@ -69,13 +74,12 @@ HttpClient httpClient = new OkHttpAsyncHttpClientBuilder()
 
 ```java
 HttpClient client = new JdkAsyncHttpClientBuilder()
-    .proxy(new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 3128)))
+    .proxy(new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 3128))
+        .setCredentials("example", "weakPassword"))
     .build();
 ```
 
-> **TODO:** JdkAsyncHttpClientBuilder does not have a setCredentials API?
-
-The constructed `HttpClient` can now be passed into a service client builder to be used as the client it uses to communicate to the service. The following example is using it to build a Azure Storage Blob client.
+The constructed `HttpClient` instance can now be passed into a service client builder to be used as the client it uses to communicate to the service. The following example is using the new HttpClient instance to build an Azure Storage Blob client.
 
 ```java
 BlobClient blobClient = new BlobClientBuilder()

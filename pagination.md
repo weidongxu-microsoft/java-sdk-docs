@@ -104,7 +104,7 @@ asyncClient.listSecrets()
         () -> System.out.println("Successfully listed all secrets"));
  ```
  
- ### Observing pages
+### Observing pages
  
  The code sample below shows how the `PagedFlux` API allows users to observe each page asynchronously, again by using a `byPage()` API and by providing a consumer, error consumer, and a completion consumer.
  
@@ -119,6 +119,6 @@ asyncClient.listSecrets().byPage()
         () -> System.out.println("Successfully listed all pages with secret"));
  ```
  
- ## Next steps
+## Next steps
 
 Now that you've familiarized yourself with pagination and iteration in the Azure SDK for Java, consider reviewing the guide on [Long-Running operations](long_running_operations.md). Long-running operations are, as the name implies, those that run for a longer duration than most normal HTTP requests. This is typically because the operation requires some effort on the server side. Familiarizing yourself with the long-running operation APIs will be of great use for when these APIs appear in your development journey.

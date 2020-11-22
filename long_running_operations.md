@@ -37,7 +37,7 @@ In this example, we will get intermittent status updates on the long-running ope
 If we are not interested in the intermediate status updates and just want to get notified of the final result once it has arrived, we may do the following in our code:
 
 ```java
-asyncClient.beginUploadFromUri("{form-url")
+asyncClient.beginUploadFromUri(...)
     .last()
     .flatMap(response -> {
         if (LongRunningOperationStatus.SUCCESSFULLY_COMPLETED == response.getStatus()) {

@@ -10,12 +10,13 @@ Planned structure is as follows:
     * [Asynchronous programming](asynchronous_programming.md)
     * [Pagination & iteration](pagination.md)
     * [Long-Running operations](long_running_operations.md)
-  * Configure logging
+  * Logging
     * [Overview](logging.md)
     * [Logback](logback.md)
     * [Log4J](log4j.md)
-  * [Configure proxies](proxying.md)
-  * [Configuration](configuration.md)
+  * Configuration  
+    * [Overview](configuration.md)
+    * [Proxies](proxying.md)
   * Identity & Authentication
     * [Overview](identity_overview.md)
     * [Examples](identity_examples.md)

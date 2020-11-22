@@ -16,7 +16,7 @@ Planned structure is as follows:
     * [Log4J](log4j.md)
   * Configuration  
     * [Overview](configuration.md)
-    * [Proxies](proxying.md)
+    * [Proxying](proxying.md)
   * Identity & Authentication
     * [Overview](identity_overview.md)
     * [Examples](identity_examples.md)

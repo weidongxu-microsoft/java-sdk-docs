@@ -10,6 +10,9 @@ Planned structure is as follows:
     * [Asynchronous programming](asynchronous_programming.md)
     * [Pagination & iteration](pagination.md)
     * [Long-Running operations](long_running_operations.md)
+  * Identity & Authentication
+    * [Overview](identity_overview.md)
+    * [Examples](identity_examples.md)  
   * Logging
     * [Overview](logging.md)
     * [Logback](logback.md)
@@ -18,10 +21,7 @@ Planned structure is as follows:
     * [Overview](configuration.md)
     * [Serialization](serialization.md)
     * [Proxying](proxying.md)
-  * Identity & Authentication
-    * [Overview](identity_overview.md)
-    * [Examples](identity_examples.md)
-  * [Tracing](tracing.md)
+    * [Tracing](tracing.md)
   * Troubleshooting
     * [Network issues](troubleshooting_network.md)
 * Quick Starts

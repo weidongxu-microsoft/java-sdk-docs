@@ -10,7 +10,8 @@ Planned structure is as follows:
     * [Asynchronous programming](asynchronous_programming.md)
     * [Pagination & iteration](pagination.md)
     * [Long-Running operations](long_running_operations.md)
-  * [Configure logging](logging.md)
+  * Configure logging
+    * [Overview](logging.md)
     * [Logback](logback.md)
     * [Log4J](log4j.md)
     * [DefaultLogger](default_logger.md)

@@ -50,29 +50,22 @@ The dependency on Netty is removable if another implementation is preferred. Thi
 
 When building a service client it will default to using `HttpClient.createDefault()`, this returns a basic `HttpClient` based on the provided HTTP client implementation. If a more complex `HttpClient` is required, such as requiring a proxy, each implementation offers a builder that allows for a configured `HttpClient` to be constructed, these are `NettyAsyncHttpClientBuilder`, `OkHttpAsyncHttpClientBuilder`, and `JdkAsyncHttpClientBuilder`. These builders will share a common set of configurations such as proxying and communication port but will contain configurations that are specific to each implementation.
 
-The following examples show how to build an `HttpClient` that proxies through `http://localhost:3128` and authenticates with user `example` whose password is `weakPassword`.
-
-#### Netty
+The following examples show how to build `HttpClient` instances using Netty, OkHttp, and the JDK 11 HttpClient, that proxy through `http://localhost:3128` and authenticate with user `example` whose password is `weakPassword`.
 
 ```java
+// Netty
 HttpClient httpClient = new NettyAsyncHttpClientBuilder()
     .proxy(new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 3128))
         .setCredentials("example", "weakPassword"))
     .build();
-```
 
-#### OkHttp
-
-```java
+// OkHttp
 HttpClient httpClient = new OkHttpAsyncHttpClientBuilder()
     .proxy(new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 3128))
         .setCredentials("example", "weakPassword"))
     .build();
-```
 
-#### JDK 11 HttpClient
-
-```java
+// JDK 11 HttpClient
 HttpClient client = new JdkAsyncHttpClientBuilder()
     .proxy(new ProxyOptions(ProxyOptions.Type.HTTP, new InetSocketAddress("localhost", 3128))
         .setCredentials("example", "weakPassword"))
@@ -89,6 +82,18 @@ BlobClient blobClient = new BlobClientBuilder()
     .httpClient(httpClient)
     .build();
 ```
+
+#### Customizing retry policies
+
+> TODO
+
+#### Customizing HTTP logging options
+
+> TODO
+
+#### Customizing timeouts
+
+> TODO
 
 ## HTTP pipeline
 

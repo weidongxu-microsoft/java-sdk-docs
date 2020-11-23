@@ -22,6 +22,9 @@ Planned structure is as follows:
     * [Serialization](serialization.md)
     * [Proxying](proxying.md)
     * [Tracing](tracing.md)
+  * Integrations
+    * [Spring](https://docs.microsoft.com/azure/developer/java/spring-framework/spring-boot-starters-for-azure)
+    * [MicroProfile](https://docs.microsoft.com/azure/developer/java/eclipse-microprofile/)
   * Troubleshooting
     * [Network issues](troubleshooting_network.md)
 * Quick Starts

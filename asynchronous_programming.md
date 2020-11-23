@@ -54,44 +54,34 @@ Creating a `ConfigurationAsyncClient` and calling the `getConfigurationSetting()
 Let's look at a sample on how to subscribe to the `Mono` and print the value of configuration to the console.
 
 ```java
-public static void main(String[] args) throws InterruptedException {
-    ConfigurationAsyncClient asyncClient = new ConfigurationClientBuilder()
-            .connectionString("{connection-string}")
-            .buildAsyncClient();
+ConfigurationAsyncClient asyncClient = new ConfigurationClientBuilder()
+    .connectionString("{connection-string}")
+    .buildAsyncClient();
 
-    asyncClient.getConfigurationSetting("{config-key}", "{config-value}")
-            .subscribe(
-                config -> System.out.println("Config value: " + config.getValue()),
-                ex -> System.out.println("Error getting configuration: " + ex.getMessage()),
-                () -> System.out.println("Successfully retrieved configuration setting"));
+asyncClient.getConfigurationSetting("{config-key}", "{config-value}").subscribe(
+    config -> System.out.println("Config value: " + config.getValue()),
+    ex -> System.out.println("Error getting configuration: " + ex.getMessage()),
+    () -> System.out.println("Successfully retrieved configuration setting"));
 
-    System.out.println("Done");
-
-    // The program exits without waiting for the async operation to complete if we don't add a bit of delay here.
-    TimeUnit.SECONDS.sleep(5);
-}
+System.out.println("Done");
 ```
 
 Notice that after calling `getConfigurationSetting()` API on the client, we subscribed to the result and provided three separate lambdas - the first one consumes data received from the service which is triggered upon successful response, the second callback is triggered if there was an error while retrieving the configuration and the third one is invoked when the data stream is complete, meaning no more data elements are expected from this stream.
 
->**Note:** The main thread sleeps for 5 seconds at the end so that the program does not terminate before the async operation completes. The main thread that called `subscribe()` will not wait until the network call to App Configuration service is made and a response is received. After the call to `subscribe()`, the main thread proceeds to execute the next line and prints "Done" on console and completes the program if we did not add `sleep`. In production systems, you might continue to process something else but in this example you can simply add a small delay by calling `Thread.sleep()` or use a `CountDownLatch` to give the async operation a chance to complete.
+>**Note:** As with all asynchronous programming, after the subscription is created, execution proceeds as per usual. This means that if there is nothing to keep the program active and executing, it may terminate before the async operation completes. The main thread that called `subscribe()` will not wait until the network call to App Configuration service is made and a response is received. In production systems, you might continue to process something else but in this example you can simply add a small delay by calling `Thread.sleep()` or use a `CountDownLatch` to give the async operation a chance to complete.
 
 APIs that return a `Flux` also follow a similar pattern, with the difference being the first callback provided to the `subscribe()` method will be called multiple times for each data element in the response. The error or the completion callbacks are called exactly once and are considered as terminal signals. No other callbacks will be invoked if either of these signals are received from the publisher. 
 
 ```java
-public static void main(String[] args) {
-    EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
-            .connectionString("{connection-string}")
-            .consumerGroup("{consumer-group}")
-            .buildAsyncConsumerClient();
+EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
+    .connectionString("{connection-string}")
+    .consumerGroup("{consumer-group}")
+    .buildAsyncConsumerClient();
 
-    asyncClient.receive()
-        .subscribe(event -> System.out.println("Sequence number of received event: " + event.getData().getSequenceNumber()),
-            ex -> System.out.println("Error receiving events: " + ex.getMessage()),
-            () -> System.out.println("Successfully completed receiving all events"));
-
-    TimeUnit.SECONDS.sleep(5);
-}
+asyncClient.receive().subscribe(
+    event -> System.out.println("Sequence number of received event: " + event.getData().getSequenceNumber()),
+    ex -> System.out.println("Error receiving events: " + ex.getMessage()),
+    () -> System.out.println("Successfully completed receiving all events"));
 ```
 
 ## Backpressure
@@ -101,40 +91,36 @@ What happens when the source is producing the data at a faster rate than the sub
 Here's an example of how you can control the rate at which events are received by the Event Hubs consumer:
 
 ```java
-public static void main(String[] args) {
-    EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
-            .connectionString("{connection-string}")
-            .consumerGroup("{consumer-group}")
-            .buildAsyncConsumerClient();
+EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
+    .connectionString("{connection-string}")
+    .consumerGroup("{consumer-group}")
+    .buildAsyncConsumerClient();
 
-    asyncClient.receive()
-        .subscribe(new Subscriber<PartitionEvent>() {
-            private Subscription subscription;
-            @Override
-            public void onSubscribe(Subscription subscription) {
-                this.subscription = subscription;
-                this.subscription.request(1); // request 1 data element to begin with
-            }
+asyncClient.receive().subscribe(new Subscriber<PartitionEvent>() {
+    private Subscription subscription;
 
-            @Override
-            public void onNext(PartitionEvent partitionEvent) {
-                System.out.println("Sequence number of received event: " + partitionEvent.getData().getSequenceNumber());
-                this.subscription.request(1); // request another event when the subscriber is ready
-            }
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        this.subscription = subscription;
+        this.subscription.request(1); // request 1 data element to begin with
+    }
 
-            @Override
-            public void onError(Throwable throwable) {
-                System.out.println("Error receiving events: " + throwable.getMessage());
-            }
+    @Override
+    public void onNext(PartitionEvent partitionEvent) {
+        System.out.println("Sequence number of received event: " + partitionEvent.getData().getSequenceNumber());
+        this.subscription.request(1); // request another event when the subscriber is ready
+    }
 
-            @Override
-            public void onComplete() {
-                System.out.println("Successfully completed receiving all events")
-            }
-        });
+    @Override
+    public void onError(Throwable throwable) {
+        System.out.println("Error receiving events: " + throwable.getMessage());
+    }
 
-    TimeUnit.SECONDS.sleep(5);
-}
+    @Override
+    public void onComplete() {
+        System.out.println("Successfully completed receiving all events")
+    }
+});
 ```
 
 When the subscriber first "connects" to the publisher, the publisher hands the subscriber an instance of `Subscription` which manages the state of the data transfer. This `Subscription` is the medium through which the subscriber can apply backpressure by calling `request()` method to specify how many more data elements it can handle. 
@@ -148,62 +134,57 @@ A subscription manages the state of data transfer between a publisher and a subs
 Dispose the subscriber:
 
 ```java
-public static void main(String[] args) {
-    EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
-            .connectionString("{connection-string}")
-            .consumerGroup("{consumer-group}")
-            .buildAsyncConsumerClient();
+EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
+    .connectionString("{connection-string}")
+    .consumerGroup("{consumer-group}")
+    .buildAsyncConsumerClient();
 
-    Disposable disposable = asyncClient.receive()
-        .subscribe(partitionEvent -> {
-                System.out.println("Sequence number of received event: " + partitionEvent.getData().getSequenceNumber();
-            }),
-            ex -> System.out.println("Error receiving events: " + ex.getMessage()),
-            () -> System.out.println("Successfully completed receiving all events"));
+Disposable disposable = asyncClient.receive().subscribe(
+    partitionEvent -> {
+        Long num = partitionEvent.getData().getSequenceNumber()
+        System.out.println("Sequence number of received event: " + num);
+    },
+    ex -> System.out.println("Error receiving events: " + ex.getMessage()),
+    () -> System.out.println("Successfully completed receiving all events"));
 
-    TimeUnit.SECONDS.sleep(5);
-    // when you are ready to cancel the subscription
-    disposable.dispose();
-}
+// much later on in your code, when you are ready to cancel the subscription,
+// you can call the dispose method, as such:
+disposable.dispose();
 ```
 
 or call the `cancel()` method on `Subscription`:
 
 ```java
-public static void main(String[] args) {
-    EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
-            .connectionString("{connection-string}")
-            .consumerGroup("{consumer-group}")
-            .buildAsyncConsumerClient();
+EventHubConsumerAsyncClient asyncClient = new EventHubClientBuilder()
+    .connectionString("{connection-string}")
+    .consumerGroup("{consumer-group}")
+    .buildAsyncConsumerClient();
 
-    asyncClient.receive()
-        .subscribe(new Subscriber<PartitionEvent>() {
-            private Subscription subscription;
-            @Override
-            public void onSubscribe(Subscription subscription) {
-                this.subscription = subscription;
-                this.subscription.request(1); // request 1 data element to begin with
-            }
+asyncClient.receive().subscribe(new Subscriber<PartitionEvent>() {
+    private Subscription subscription;
 
-            @Override
-            public void onNext(PartitionEvent partitionEvent) {
-                System.out.println("Sequence number of received event: " + partitionEvent.getData().getSequenceNumber());
-                this.subscription.cancel(); // Cancels the subscription and no further event will be received
-            }
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        this.subscription = subscription;
+        this.subscription.request(1); // request 1 data element to begin with
+    }
 
-            @Override
-            public void onError(Throwable throwable) {
-                System.out.println("Error receiving events: " + throwable.getMessage());
-            }
+    @Override
+    public void onNext(PartitionEvent partitionEvent) {
+        System.out.println("Sequence number of received event: " + partitionEvent.getData().getSequenceNumber());
+        this.subscription.cancel(); // Cancels the subscription and no further event will be received
+    }
 
-            @Override
-            public void onComplete() {
-                System.out.println("Successfully completed receiving all events")
-            }
-        });
+    @Override
+    public void onError(Throwable throwable) {
+        System.out.println("Error receiving events: " + throwable.getMessage());
+    }
 
-    TimeUnit.SECONDS.sleep(5); 
-}
+    @Override
+    public void onComplete() {
+        System.out.println("Successfully completed receiving all events")
+    }
+});
 ```
 
 ## Pagination using PagedFlux
@@ -213,39 +194,31 @@ Many Azure services have APIs that return a collection of results. For example, 
 The Azure Java clients - both sync and async - hide the details of paging and provides application developers with a simple abstraction to iterate through the results. The pagination happens behind the scenes, on-demand. The async clients return a [`PagedFlux`](https://docs.microsoft.com/java/api/com.azure.core.http.rest.pagedflux?view=azure-java-stable) which is a type of `Flux` that allows you to iterate through the results one item at a time or one page at a time. For example, if you are interested in listing the configurations stored in App Configuration and iterate through each configuration and don't really care about paging, you can simply treat the `PagedFlux` as a `Flux` and `subscribe()` to iterate through each configuration, as shown below.
 
 ```java
-public static void main(String[] args) throws InterruptedException {
-    ConfigurationAsyncClient asyncClient = new ConfigurationClientBuilder()
-            .connectionString("{connection-string}")
-            .buildAsyncClient();
+ConfigurationAsyncClient asyncClient = new ConfigurationClientBuilder()
+    .connectionString("{connection-string}")
+    .buildAsyncClient();
 
-    // just subscribe to the PagedFlux similar to a Flux
-    asyncClient.listConfigurationSettings(selector)
-        .subscribe(config -> System.out.println("Config value: " + config.getValue()),
-            ex -> System.out.println("Error listing configuration: " + ex.getMessage()),
-            () -> System.out.println("Successfully listed all configurations"));
-
-   TimeUnit.SECONDS.sleep(5);
-}
+// just subscribe to the PagedFlux similar to a Flux
+asyncClient.listConfigurationSettings(selector).subscribe(
+    config -> System.out.println("Config value: " + config.getValue()),
+    ex -> System.out.println("Error listing configuration: " + ex.getMessage()),
+    () -> System.out.println("Successfully listed all configurations"));
 ```
 
 If you are interested in iterating the results by page, you can use the `byPage()` method on `PagedFlux`. This method returns a `Flux` of `PagedResponse` type that includes details of HTTP response like the HTTP status code, response headers, link to next page and any other information specific to that page.
 
 ```java
-public static void main(String[] args) throws InterruptedException {
-    ConfigurationAsyncClient asyncClient = new ConfigurationClientBuilder()
-            .connectionString("{connection-string}")
-            .buildAsyncClient();
+ConfigurationAsyncClient asyncClient = new ConfigurationClientBuilder()
+    .connectionString("{connection-string}")
+    .buildAsyncClient();
 
-    // just subscribe to the pagedFlux similar to a Flux
-    asyncClient.listConfigurationSettings(selector)
-        .byPage() // iterating by page
-        .subscribe(
-            page -> System.out.println("Next page link: " + page.getContinuationToken() + ", results: " + page.getElements()),
-            ex -> System.out.println("Error listing configuration: " + ex.getMessage()),
-            () -> System.out.println("Successfully listed all configurations"));
-
-    TimeUnit.SECONDS.sleep(5);
-}
+// just subscribe to the pagedFlux similar to a Flux
+asyncClient.listConfigurationSettings(selector)
+    .byPage() // iterating by page
+    .subscribe(
+        page -> System.out.println("Next page link: " + page.getContinuationToken() + ", results: " + page.getElements()),
+        ex -> System.out.println("Error listing configuration: " + ex.getMessage()),
+        () -> System.out.println("Successfully listed all configurations"));
 ```
 
 Note that there's no difference in performance or the number of calls made to the service whether you iterate by page or by each item. The underlying implementation loads the next page on-demand and if you unsubscribe from the `PagedFlux` at any time, there will be no further calls to the service.  
@@ -257,41 +230,36 @@ Certain operations on Azure may require extended processing times to successfull
 For such operations, the Java async clients return a type of `Flux` known as the [`PollerFlux`](https://docs.microsoft.com/java/api/com.azure.core.util.polling.pollerflux?view=azure-java-stable). Each data element emitted by `PollerFlux` is of type [`AsyncPollResponse`](https://docs.microsoft.com/java/api/com.azure.core.util.polling.asyncpollresponse?view=azure-java-stable) and holds the result of the polling operation done periodically by the SDK. Client applications interested in keeping track of the progress of the long running operation may subscribe to this flux and inspect the status of each response as shown below:
 
 ```java
-public static void main(String[] args) throws InterruptedException {
-    FormRecognizerAsyncClient formRecognizerAsyncClient = new FormRecognizerClientBuilder()
-            .credential(new DefaultAzureCredentialBuilder().build())
-            .buildAsyncClient();
+FormRecognizerAsyncClient formRecognizerAsyncClient = new FormRecognizerClientBuilder()
+    .credential(new DefaultAzureCredentialBuilder().build())
+    .buildAsyncClient();
 
-    formRecognizerAsyncClient.beginRecognizeContentFromUrl("{form-url")
-            .subscribe(response -> System.out.println("Status of long running operation: " + response.getStatus()));
-
-    TimeUnit.SECONDS.sleep(5);
-}
+formRecognizerAsyncClient.beginRecognizeContentFromUrl("{form-url")
+    .subscribe(response -> System.out.println("Status of long running operation: " + response.getStatus()));
 ```
 
 If you are interested in getting the final result of a long running operation, you may use the `last()` operator on `PollerFlux` to wait until the last response is emitted by the poller flux and then inspect the status. If the status of the long running operation is successful, you can fetch the final result or throw an error if the operation failed as shown below:
 
 ```java
-public static void main(String[] args) throws InterruptedException {
-    FormRecognizerAsyncClient formRecognizerAsyncClient = new FormRecognizerClientBuilder()
-            .credential(new DefaultAzureCredentialBuilder().build())
-            .buildAsyncClient();
+FormRecognizerAsyncClient formRecognizerAsyncClient = new FormRecognizerClientBuilder()
+    .credential(new DefaultAzureCredentialBuilder().build())
+    .buildAsyncClient();
 
-    CountDownLatch countDownLatch = new CountDownLatch(1);
-    formRecognizerAsyncClient.beginRecognizeContentFromUrl("{form-url")
-        .last()
-        .flatMap(response -> {
-            if (LongRunningOperationStatus.SUCCESSFULLY_COMPLETED == response.getStatus()) {
-                return response.getFinalResult();
-            }
-            return Mono.error(new IllegalStateException("Polling completed unsuccessfully with status:"
-                    + response.getStatus()));
-        })
-        .subscribe(formPages -> processFormPages(formPages),
-            ex -> countDownLatch.countDown(),
-            () -> countDownLatch.countDown());
+CountDownLatch countDownLatch = new CountDownLatch(1);
+formRecognizerAsyncClient.beginRecognizeContentFromUrl("{form-url")
+    .last()
+    .flatMap(response -> {
+        if (LongRunningOperationStatus.SUCCESSFULLY_COMPLETED == response.getStatus()) {
+            return response.getFinalResult();
+        }
+        return Mono.error(new IllegalStateException("Polling completed unsuccessfully with status:"
+                + response.getStatus()));
+    })
+    .subscribe(formPages -> processFormPages(formPages),
+        ex -> countDownLatch.countDown(),
+        () -> countDownLatch.countDown());
 
-    countDownLatch.await();
+countDownLatch.await();
 }
 ```
 

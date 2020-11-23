@@ -5,11 +5,12 @@ Planned structure is as follows:
 * [Get Started](https://docs.microsoft.com/en-us/azure/developer/java/sdk/java-sdk-azure-get-started) (Rewritten to use the latest libraries and demonstrate a scenario, e.g. the existing storage scenario, and clearly articulate the management / data plane dichotomy from a library / functionality standpoint).
 * Concepts
   * [Overview](overview.md)
-  * Client library concepts
+  * Common concepts
     * [HTTP clients & pipeline](http_client_pipeline.md)
     * [Asynchronous programming](asynchronous_programming.md)
     * [Pagination & iteration](pagination.md)
     * [Long-Running operations](long_running_operations.md)
+    * [Context](context.md)
   * Identity & Authentication
     * [Overview](identity_overview.md)
     * [Examples](identity_examples.md)  

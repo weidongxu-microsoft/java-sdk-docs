@@ -1,26 +1,44 @@
+---
+title: Tracing
+description: An overview of the Azure SDK for Java concepts related to tracing
+ms.date: 11/23/2020
+ms.topic: conceptual
+ms.custom: devx-track-java
+---
+
 # Tracing
 
-Azure SDK uses [OpenTelemetery](https://opentelemetry.io/) API implementation `azure-core-tracing-opentelemetry` [plugin](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/core/azure-core-tracing-opentelemetry#azure-tracing-opentelemetry-client-library-for-java) for enabling tracing on client libraries.
+The Azure SDK for Java enables tracing in all client libraries by simply including a dependency on the [OpenTelemetery](https://opentelemetry.io/)-based `azure-core-tracing-opentelemetry` [plugin](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/core/azure-core-tracing-opentelemetry#azure-tracing-opentelemetry-client-library-for-java). OpenTelemetry is a popular open-source observability framework for generating, capturing, and collecting telemetry data for cloud-native software.
 
-[OpenTelemetry](https://opentelemetry.io/) is one of the popular open-source observability framework for generating, capturing, and collecting telemetry data for cloud-native software.
+## Key concepts
+
+### Trace
+
+A trace is a tree of spans showing the path of work through a system. A trace on its own is distinguishable by a unique 16 byte sequence called a TraceID.
+
+### Span
+
+A span represents a single operation in a trace. A span could be representative of an HTTP request, a remote procedure call (RPC), a database query, or even the path that a code takes.
 
 ## Configure Tracer
 
-To enable tracing for the client libraries, the user will have to add `azure-core-tracing-opentelemetry` plugin and `opentelemetry-sdk` package dependency to their application.
+To enable tracing for the client libraries, developers will have to add the `azure-core-tracing-opentelemetry` plugin and `opentelemetry-sdk` package dependency to their application.
 
 ```xml
 <dependency>
   <groupId>com.azure</groupId>
   <artifactId>azure-core-tracing-opentelemetry</artifactId>
-  <version>1.0.0-beta.4</version>
+  <version>1.0.0-beta.6</version>
 </dependency>
 
 <dependency>
   <groupId>io.opentelemetry</groupId>
   <artifactId>opentelemetry-sdk</artifactId>
-  <version>0.2.4</version>
+  <version>0.6.0</version>
 </dependency>
 ```
+
+By adding this dependency, tracing will be enabled and traces will be created and included with all HTTP requests. There will be no integration however with any incoming parent span, and it is still required to specify where these tracer spans should be exported to. Let's do that now.
 
 ### Customizing Tracer spans:
 

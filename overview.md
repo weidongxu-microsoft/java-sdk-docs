@@ -33,6 +33,34 @@ The open-source Azure libraries for Java simplify provisioning, managing, and us
 
 The client (or "data plane") libraries help you write Java application code to interact with already-provisioned services. Client libraries exist only for those services that support a client API. They can be easily identified as their Maven group ID is `com.azure`.
 
+All Azure Java client libraries follow the same API design pattern of offering a Java builder class that is responsible for creating an instance of a client. This separates the definition and instantiation of the client from its operation, allowing the client to be immutable and thus simpler to use. On top of this, all client libraries follow a few important patterns:
+
+* Client libraries that support both synchronous and asynchronous APIs must offer these in separate classes. This means that in these cases there would be, for example, a `KeyVaultClient` for sync APIs and a `KeyVaultAsyncClient` for async APIs.
+
+* There is a single builder class that takes responsibility for building both the sync and async APIs. The builder will be named similarly to the sync client class, with `Builder` included. For example, `KeyVaultClientBuilder`. This builder will have `buildClient()` and `buildAsyncClient()` methods to create client instances, as appropriate.
+
+Because of these conventions, users of the Java client libraries should feel comfortable that all classes ending in `Client` will be immutable and provide operations to interact with an Azure service. All classes that end in `ClientBuilder` will provide operations to configure and create an instance of a particular client type.
+
+## Example
+
+The code to create a synchronous Key Vault `KeyClient` would be similar to the following:
+
+```java
+KeyClient client = new KeyClientBuilder()
+        .endpoint(<your-vault-url>)
+        .credential(new DefaultAzureCredential())
+        .buildClient();
+```
+
+Similarly, to create an asynchronous Key Vault `KeyAsyncClient`, do the following:
+
+```java
+KeyAsyncClient client = new KeyClientBuilder()
+        .endpoint(<your-vault-url>)
+        .credential(new DefaultAzureCredential())
+        .buildAsyncClient();
+```
+
 For details on working with each client library, see the README.md file located in the library's project folder in the [SDK GitHub repository](https://github.com/Azure/azure-sdk-for-java). You can also find additional code snippets in the [reference documentation](https://docs.microsoft.com/java/api) and the [Azure Samples](https://docs.microsoft.com/samples/browse/?products=azure&languages=java).
 
 ## Provision and manage Azure resources with management libraries

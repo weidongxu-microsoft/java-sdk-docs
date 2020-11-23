@@ -10,7 +10,6 @@ Planned structure is as follows:
     * [Asynchronous programming](asynchronous_programming.md)
     * [Pagination & iteration](pagination.md)
     * [Long-Running operations](long_running_operations.md)
-    * [Context](context.md)
   * Identity & Authentication
     * [Overview](identity_overview.md)
     * [Examples](identity_examples.md)  
@@ -30,3 +29,7 @@ Planned structure is as follows:
 * Code Samples
   * (Updated list of code samples that are for track two Java SDKs)
 * [Reference](https://docs.microsoft.com/java/api/overview/azure/?view=azure-java-stable)
+
+## Future Topics
+
+* [Context](context.md)

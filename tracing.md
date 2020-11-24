@@ -12,6 +12,11 @@ The Azure SDK for Java enables tracing in all client libraries by simply includi
 
 There are two key concepts related to tracing: **span** and **trace**. A span represents a single operation in a trace. A span could be representative of an HTTP request, a remote procedure call (RPC), a database query, or even the path that a code takes. A trace is a tree of spans showing the path of work through a system. A trace on its own is distinguishable by a unique 16 byte sequence called a TraceID. Further details on these concepts, and how they relate to OpenTelemetry can be found on the [OpenTelemetry Documentation](https://opentelemetry.io/docs/) site.
 
+There are two ways to enable tracing in the Azure client libraries for Java:
+
+1. By enabling functionality built into the Azure SDK for Java.
+2. By enabling an in-process agent to gather tracing data and submit it without any code changes.
+
 ## Enabling tracing in Azure SDK for Java
 
 Enabling tracing for all Azure Java client libraries is simple: all developers need to do is add the `azure-core-tracing-opentelemetry` and `opentelemetry-sdk` dependencies to their application. For example, in Maven we would see the following:
@@ -69,7 +74,7 @@ For example, an App Configuration client request to set Configuration setting i.
 * Library method span named `AppConfig.setKey`.
 * HTTP outgoing request span named `/kv/hello`.
 
-## Configuring tracing exports
+### Configuring tracing exports
 
 Applications that wish to make use of trace information must export traces to a distributed tracing store (such as [Zipkin](https://zipkin.io/) and [Jaeger](https://www.jaegertracing.io/)). Shown below is the Java code used to configure exporting of trace information to a Jaeger distributed tracing store running on localhost port 14250, using Jaeger-specific APIs:
 
@@ -84,8 +89,13 @@ TracerSdkFactory tracerSdkFactory = (TracerSdkFactory) OpenTelemetry.getTracerFa
 tracerSdkFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(exporter).build());
 ```
 
-## Configure Application insights
+## Enabling tracing with the in-process agent
 
-User applications can export traces to [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview) dashboard by adding the Java [in-process agent](https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.0.0-PREVIEW.5/applicationinsights-agent-3.0.0-PREVIEW.5.jar) and the [azure-core-tracing-opentelemetry](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/core/azure-core-tracing-opentelemetry#azure-tracing-opentelemetry-client-library-for-java) package to their project.
+Application Insights, a feature of [Azure Monitor](https://docs.microsoft.com/azure/azure-monitor/overview), can be used for automatic collection and transmission of data for subsequent analysis of applications in large-scale distributed systems. This instrumentation monitors your application and directs the telemetry data to an [Azure Application Insights resource](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview) using a unique GUID 
+that is referred to as an 'Instrumentation Key'. 
 
-More information about attaching the Java codeless in-process agent and Application Insights can be found [here](https://docs.microsoft.com/en-us/azure/azure-monitor/app/java-in-process-agent).
+Through the use of a [Java in-process agent](https://docs.microsoft.com/azure/azure-monitor/app/java-in-process-agent), developers can enable monitoring of their applications without any code changes. In addition to this, developers will need to add the [azure-core-tracing-opentelemetry](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/core/azure-core-tracing-opentelemetry#azure-tracing-opentelemetry-client-library-for-java) dependency to their project. Once this is done, developers can use the Application Insights dashboard to instrument requests, collect performance counters, diagnose performance issues and exceptions, and write code to track what users do with within an application.
+
+## Next steps
+
+Now that you've familiarized yourself with the core cross-cutting functionality in the Azure SDK for Java, consider reviewing the [identity and authentication](identity_overview.md) overview to familiarize yourself with how developers can create secure applications. 

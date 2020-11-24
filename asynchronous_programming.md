@@ -270,3 +270,7 @@ In this example, we use `CountDownLatch` to wait until the long running operatio
 Threads are expensive resources and should not be wasted waiting for response from remote service calls. As the adoption of microservices architecture increases, the need to scale and utilize resources efficiently becomes vital. Asynchronous APIs are favorable when there are network-bound operations. The new Azure SDK for Java offers a rich set of APIs for async operations to help maximize your system resources. We highly encourage you to try out our async clients.
 
 If you need more information, you can [lookup which operator to use](https://projectreactor.io/docs/core/release/reference/#which-operator) that best suits your task at hand.
+
+## Next steps
+
+Now that you've familiarized yourself with the asynchronous programming functionality in the Azure SDK for Java, consider reviewing the [pagination and iteration](pagination.md) documentation to learn how to consume responses from Azure services where there is more than one returned value.

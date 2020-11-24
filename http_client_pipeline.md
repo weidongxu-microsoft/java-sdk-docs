@@ -144,4 +144,4 @@ Creating a custom HTTP pipeline policy is as simple as extending a base policy t
 
 ## Next steps
 
-Now that you've familiarized yourself with HTTP client functionality in the Azure SDK for Java, consider reviewing the [proxying](proxying.md) and [configuration](configuration.md) documentation to learn how to further customize the HTTP client being used.
+Now that you've familiarized yourself with HTTP client functionality in the Azure SDK for Java, consider reviewing the [proxying](proxying.md) documentation to learn how to further customize the HTTP client being used.

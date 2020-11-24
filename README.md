@@ -10,6 +10,9 @@ Planned structure is as follows:
     * [Asynchronous programming](asynchronous_programming.md)
     * [Pagination & iteration](pagination.md)
     * [Long-Running operations](long_running_operations.md)
+    * [Serialization](serialization.md)
+    * [Proxying](proxying.md)
+    * [Tracing](tracing.md)
   * Identity & Authentication
     * [Overview](identity_overview.md)
     * [Examples](identity_examples.md)  
@@ -17,11 +20,6 @@ Planned structure is as follows:
     * [Overview](logging.md)
     * [Logback](logback.md)
     * [Log4J](log4j.md)
-  * Configuration  
-    * [Overview](configuration.md)
-    * [Serialization](serialization.md)
-    * [Proxying](proxying.md)
-    * [Tracing](tracing.md)
   * Integrations
     * [Spring](https://docs.microsoft.com/azure/developer/java/spring-framework/spring-boot-starters-for-azure)
     * [MicroProfile](https://docs.microsoft.com/azure/developer/java/eclipse-microprofile/)
@@ -36,3 +34,4 @@ Planned structure is as follows:
 ## Future Topics
 
 * [Context](context.md)
+* [Configuration](configuration.md)

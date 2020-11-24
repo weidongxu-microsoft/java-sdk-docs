@@ -29,7 +29,6 @@ There are some well-known Java libraries that provide implementations of this sp
 
 The Azure SDK for Java adopted Project Reactor to offer its async APIs. The main factor driving this decision was to provide smooth integration with [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) which also uses Project Reactor. Another contributing factor to choose Project Reactor over RxJava was that Project Reactor uses Java 8 whereas RxJava, at the time, was still at Java 7. Project Reactor also offers a rich set of operators that are composable and allows developers to write declarative code for building data processing pipelines. Another nice thing about Project Reactor is that it has adapters for converting Project Reactor types to other popular implementation types. 
 
-
 ## Comparing APIs of synchronous and asynchronous operations
 
 We discussed the synchronous clients and options for asynchronous clients. The table below summarizes what APIs designed using these options look like:
@@ -84,7 +83,7 @@ asyncClient.receive().subscribe(
     () -> System.out.println("Successfully completed receiving all events"));
 ```
 
-## Backpressure
+### Backpressure
 
 What happens when the source is producing the data at a faster rate than the subscriber can handle? The subscriber can get overwhelmed with data and can lead to out of memory errors. The subscriber needs a way to communicate back to the publisher to slow down when it cannot keep up. By default, when you `subscribe()` to a `Flux` as shown in the example above, the subscriber is requesting an unbounded stream of data indicating to the publisher to send the data as quickly as possible. This may not always be desired and the subscriber may have to control the rate of publishing. The subscriber can choose to do so by requesting a limited number of data elements to start with and then request for more when it's ready again. This is known as "backpressure" where the subscriber of the data signals to the publisher how much data it can handle. By using backpressure, a push-model for data transfer can be transformed to a push-pull model where the subscriber requests data when it's ready and the publisher sends data when available. 
 
@@ -127,7 +126,7 @@ When the subscriber first "connects" to the publisher, the publisher hands the s
 
 If the subscriber requests more than one data element each time `onNext()` is called, `request(10)` for example, the publisher will send the next 10 elements immediately, if they are available or when they become available. These elements are accumulated in a buffer on the subscriber's end and since each `onNext()` call will request 10 more, the backlog keeps growing until either the publisher has no more data elements to send or the subscriber's buffer overflows resulting in out of memory errors. 
 
-## Cancelling a subscription
+### Cancelling a subscription
 
 A subscription manages the state of data transfer between a publisher and a subscriber. The subscription is active until the publisher has completed transferring all the data to the subscriber or the subscriber is no longer interested in receiving data. There are a couple of ways in which the subscriber can cancel a subscription as shown below.
 
@@ -187,7 +186,7 @@ asyncClient.receive().subscribe(new Subscriber<PartitionEvent>() {
 });
 ```
 
-## Pagination using PagedFlux
+### Pagination using PagedFlux
 
 Many Azure services have APIs that return a collection of results. For example, listing all the configurations stored in App Configuration service. There may be thousands of configurations and sending them all at once as one single HTTP response could cause high latency, increase the size of payload and may not even fit into the memory of the client application. So, typically, such APIs support pagination. Each request to the service returns a single page with a limited set of results and a link to the next page. To get the results from next page, another request has to be made to the service. 
 
@@ -223,7 +222,7 @@ asyncClient.listConfigurationSettings(selector)
 
 Note that there's no difference in performance or the number of calls made to the service whether you iterate by page or by each item. The underlying implementation loads the next page on-demand and if you unsubscribe from the `PagedFlux` at any time, there will be no further calls to the service.  
 
-## Long Running Operations and PollerFlux
+### Long Running Operations and PollerFlux
 
 Certain operations on Azure may require extended processing times to successfully complete a user request. For example, copying data from a source URL to a Storage blob or training a model to recognize forms are operations that may take a few seconds to several minutes. Such operations are referred to as long running operations and these operations, typically, acknowledge the user request to start the long running operation by returning a "request id" immediately. The client will then periodically poll the service to get the status of the operation. When the terminal state has reached either because the operation completed successfully or failed, the polling stops. The client can then request the final response of the operation.
 

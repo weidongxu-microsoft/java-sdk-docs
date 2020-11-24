@@ -127,3 +127,7 @@ HttpClient okhttpHttpClient = new OkHttpAsyncHttpClientBuilder()
     .proxy(proxyOptions)
     .build();
 ```
+
+## Next steps
+
+Now that you've familiarized yourself with the proxy configuration in the Azure SDK for Java, consider reviewing how to enable [tracing](tracing.md) to better understand flows within your application, and to help diagnose issues.

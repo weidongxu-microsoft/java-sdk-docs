@@ -10,19 +10,11 @@ ms.custom: devx-track-java
 
 The Azure SDK for Java enables tracing in all client libraries by simply including a dependency on the [OpenTelemetery](https://opentelemetry.io/)-based `azure-core-tracing-opentelemetry` [plugin](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/core/azure-core-tracing-opentelemetry#azure-tracing-opentelemetry-client-library-for-java). OpenTelemetry is a popular open-source observability framework for generating, capturing, and collecting telemetry data for cloud-native software.
 
-## Key concepts
+There are two key concepts related to tracing: **span** and **trace**. A span represents a single operation in a trace. A span could be representative of an HTTP request, a remote procedure call (RPC), a database query, or even the path that a code takes. A trace is a tree of spans showing the path of work through a system. A trace on its own is distinguishable by a unique 16 byte sequence called a TraceID. Further details on these concepts, and how they relate to OpenTelemetry can be found on the [OpenTelemetry Documentation](https://opentelemetry.io/docs/) site.
 
-### Trace
+## Enabling tracing in Azure SDK for Java
 
-A trace is a tree of spans showing the path of work through a system. A trace on its own is distinguishable by a unique 16 byte sequence called a TraceID.
-
-### Span
-
-A span represents a single operation in a trace. A span could be representative of an HTTP request, a remote procedure call (RPC), a database query, or even the path that a code takes.
-
-## Configure Tracer
-
-To enable tracing for the client libraries, developers will have to add the `azure-core-tracing-opentelemetry` plugin and `opentelemetry-sdk` package dependency to their application.
+Enabling tracing for all Azure Java client libraries is simple: all developers need to do is add the `azure-core-tracing-opentelemetry` and `opentelemetry-sdk` dependencies to their application. For example, in Maven we would see the following:
 
 ```xml
 <dependency>
@@ -38,44 +30,50 @@ To enable tracing for the client libraries, developers will have to add the `azu
 </dependency>
 ```
 
-By adding this dependency, tracing will be enabled and traces will be created and included with all HTTP requests. There will be no integration however with any incoming parent span, and it is still required to specify where these tracer spans should be exported to. Let's do that now.
+By adding this dependency, tracing will be enabled, with traces included with all HTTP requests. There are now two problems:
 
-### Customizing Tracer spans:
+1. There is no integration with any incoming parent span.
+2. The generated traces are not being exported anywhere for later analysis.
 
-Users can additionally create a root span in their application and pass it down to the client calls for encapsulating all the outgoing requests in the application. This can be done by using the `Context` parameter on the client methods.
+Let's work on these two issues now.
+
+### Integrating parent spans
+
+As noted above, including the dependencies will enable tracing within the Azure client libraries, but it will not integrate with any incoming tracing data, for example in an web environment where an incoming request results in a call into an Azure client library. To enable this, developers can create a root span in their application and pass it into the Azure client library calls, so that this may be encapsulated into appropriate outgoing requests to Azure services. This can be done by using the `Context` parameter on all client methods:
 
 ```java
+// The 'span' given in this context is the parent span key received from the incoming request
 Context traceContext = new Context(PARENT_SPAN_KEY, span);
+
+// in this sample code, we are passing a new configuration setting to a service, but also including
+// the traceContext from above, so that it may be picked up by the http transport and included as appropriate.
 appConfigClient.setConfigurationSettingWithResponse(new ConfigurationSetting().setKey("hello").setValue("world"), true, traceContext);
 ```
 
->In case of no parent span provided, a new parent span will be created to encapsulate all the client libraries outgoing requests.
-
-Each client call results in two spans, convenience layer span and outgoing HTTP request span.
+In cases where no parent span is provided, a new parent span will be created to encapsulate all the client libraries outgoing requests. Note that for each call into an Azure client library method, two spans are created: one tracing the progression through the client libraries, and the other tracing the outgoing HTTP request span.
 
 #### Tracer Span Attributes
 
-In addition to OpenTelemetry's required standard attributes mentioned [here](https://github.com/open-telemetry/opentelemetry-specification/blob/e9340d74f1ba0b651b3581d6bd5df6a92b772e18/semantic-conventions.md), client libraries annotates the spans with below mentioned attributes:
+In addition to [OpenTelemetry's required standard attributes](https://github.com/open-telemetry/opentelemetry-specification/blob/e9340d74f1ba0b651b3581d6bd5df6a92b772e18/semantic-conventions.md), the Azure client libraries annotate the spans with the attributes mentioned below:
 
 * `az.namespace`: Microsoft resource provider [namespaces](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-services-resource-providers) mapped to Azure services.
 * `x-ms-request-id`: The unique identifier for the request.
-* `span.kind`: Describes the relationship between the Span, its parents, and its children in a Trace.
-* `span.status.message`: Represents the status of a finished Span.
-* `span.status.code`: Represents the status code of a finished Span.
+* `span.kind`: Describes the relationship between the span, its parents, and its children in a trace.
+* `span.status.message`: Represents the status of a finished span.
+* `span.status.code`: Represents the status code of a finished span.
 
 Additional metadata about the operation being performed is captured in the span names. The HTTP span names are set to the URI path value and the library method invocation span is of the form `<namespace qualified type>.<method name>`.
 
-For example, an App Configuration client request to set Configuration setting i.e `appConfigClient.setConfigurationSettingWithResponse(new ConfigurationSetting().setKey("hello").setValue("world")` will result two spans:
+For example, an App Configuration client request to set Configuration setting i.e `appConfigClient.setConfigurationSettingWithResponse(new ConfigurationSetting().setKey("hello").setValue("world")` will result in the following two spans:
 
 * Library method span named `AppConfig.setKey`.
 * HTTP outgoing request span named `/kv/hello`.
 
-## Configure Exporter:
+## Configuring tracing exports
 
-User applications can export traces to different distributed tracing stores (such as Zipkin, Jeager, Stackdriver Trace).
+Applications that wish to make use of trace information must export traces to a distributed tracing store (such as [Zipkin](https://zipkin.io/) and [Jaeger](https://www.jaegertracing.io/)). Shown below is the Java code used to configure exporting of trace information to a Jaeger distributed tracing store running on localhost port 14250, using Jaeger-specific APIs:
 
 ```java
-// 1. Configure exporter to export traces to Jaeger.
 ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 14250).usePlaintext().build();
 JaegerGrpcSpanExporter exporter = JaegerGrpcSpanExporter.newBuilder()
     .setChannel(channel)
@@ -88,6 +86,6 @@ tracerSdkFactory.addSpanProcessor(SimpleSpansProcessor.newBuilder(exporter).buil
 
 ## Configure Application insights
 
-User applications can export traces to [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) dashboard by adding the Java [in-process agent](https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.0.0-PREVIEW.5/applicationinsights-agent-3.0.0-PREVIEW.5.jar) and the [azure-core-tracing-opentelemetry](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/core/azure-core-tracing-opentelemetry#azure-tracing-opentelemetry-client-library-for-java) package to their project.
+User applications can export traces to [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview) dashboard by adding the Java [in-process agent](https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.0.0-PREVIEW.5/applicationinsights-agent-3.0.0-PREVIEW.5.jar) and the [azure-core-tracing-opentelemetry](https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/core/azure-core-tracing-opentelemetry#azure-tracing-opentelemetry-client-library-for-java) package to their project.
 
 More information about attaching the Java codeless in-process agent and Application Insights can be found [here](https://docs.microsoft.com/en-us/azure/azure-monitor/app/java-in-process-agent).

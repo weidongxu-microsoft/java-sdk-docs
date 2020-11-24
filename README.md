@@ -2,7 +2,7 @@
 
 Planned structure is as follows:
 
-* [Get Started](https://docs.microsoft.com/en-us/azure/developer/java/sdk/java-sdk-azure-get-started) (Rewritten to use the latest libraries and demonstrate a scenario, e.g. the existing storage scenario, and clearly articulate the management / data plane dichotomy from a library / functionality standpoint).
+* [Get Started](https://docs.microsoft.com/azure/developer/java/sdk/java-sdk-azure-get-started)
 * Concepts
   * [Overview](overview.md)
   * Common concepts

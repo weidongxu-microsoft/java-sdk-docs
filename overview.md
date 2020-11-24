@@ -86,3 +86,6 @@ Now that you understand what the Azure SDK for Java is, it is time to take a dee
 * [Asynchronous programming](asynchronous_programming.md)
 * [Pagination & iteration](pagination.md)
 * [Long-Running operations](long_running_operations.md)
+* [Serialization](serialization.md)
+* [Proxying](proxying.md)
+* [Tracing](tracing.md)

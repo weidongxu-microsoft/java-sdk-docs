@@ -54,3 +54,7 @@ asyncClient.beginUploadFromUri(...)
 In this code we retrieve the final result of the long-running operation by calling `last()`. This tells the `PollerFlux` that we want to wait for all the polling to complete, at which point the long-running operation has reached a terminal state, and its status can be inspected to determine the outcome. If the poller indicates that the long-running operation has completed successfully, the final result can be retrieved and passed on to the consumer in the subscribe call.
 
 The following sample code using `last()` operator to wait for all polling to complete, then retrieve the final result if LRO succeeded.
+
+## Next steps
+
+Now that you've familiarized yourself with the long-running APIs in the Azure SDK for Java, consider reviewing how [serialization](serialization.md) is exposed to developers. Understanding this will make developing applications where you need to bring your own data models to Azure much easier!

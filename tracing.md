@@ -31,7 +31,7 @@ Enabling tracing for all Azure Java client libraries is simple: all developers n
 <dependency>
   <groupId>io.opentelemetry</groupId>
   <artifactId>opentelemetry-sdk</artifactId>
-  <version>0.6.0</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 

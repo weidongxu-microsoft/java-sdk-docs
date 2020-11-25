@@ -19,9 +19,7 @@ Both `SyncPoller` and `PollerFlux` are the client-side abstractions intended to 
 
 ## Synchronous long-running operations
 
-Calling a sync API for a long-running operation will initiate the LRO and immediately return a `SyncPoller` instance. The `SyncPoller` enables monitoring the progress of the LRO and retrieval of the final result.
-
-The code below shows how to monitor LRO progress using `SyncPoller.`
+Calling any API that returns a `SyncPoller` will immediately start the long-running operation, and the `SyncPoller` will then be returned immediately, allowing for monitoring of the progress of the long-running operation, as well as retrieval of the final result. The code below shows how to monitor the progress of a long-running operation using the `SyncPoller`.
 
 ```java
 SyncPoller<UploadBlobProgress, UploadedBlobProperties> poller = syncClient.beginUploadFromUri(...)
@@ -35,11 +33,11 @@ do {
 } while (!response.getStatus().isComplete());
 ```
 
-the sample uses the `poll` method to retrieve the long-running operation's progress. In this case, the status is printed to the console, but a better implementation would make relevant decisions based on this status.
+This sample uses the `poll()` method on the `SyncPoller` to retrieve the long-running operation progress. In this case, the status is printed to the console, but a better implementation would make relevant decisions based on this status.
 
-The `getRetryAfter()` returns how long to wait before the next poll. Most of the Azure LRO return the poll-delay over HTTP response (e.g. `retry-after` header); if the response does not contain poll-delay, then the duration given at the time of invoking LRO sync API is used.
+The `getRetryAfter()` method returns how long to wait before the next poll. Most Azure long-running operations return the poll delay as part of their HTTP response (i.e. the commonly-used `retry-after` header). If the response does not contain poll-delay, then the duration given at the time of invoking the long-running operation is used.
 
-The above sample uses a `do..while` loop to repeatedly poll until the LRO is complete. If you're not interested in intermediate poll responses, you can use `waitForCompletion` method in `SyncPoller`, which blocks the current thread until LRO finishes and returns the last poll response.
+The above sample uses a `do..while` loop to repeatedly poll until the long-running operation is complete. If these intermediate results are of no interest, developers can instead call `waitForCompletion()`, which will block the current thread until the long-running operation completes and returns the last poll response:
 
 ```java
 PollResponse<UploadBlobProgress> response = poller.waitForCompletion();
@@ -53,11 +51,11 @@ if (LongRunningOperationStatus.SUCCESSFULLY_COMPLETED == response.getStatus()) {
 }
 ```
 
-Other APIs in `SyncPoller` are:
+Other useful APIs in `SyncPoller` include:
 
-1. `waitForCompletion(Duration)`: wait for the LRO completion with a timeout. 
-1. `waitUntil(LongRunningOperationStatus)`: wait for the given LRO status to receive.
-1. `waitUntil(LongRunningOperationStatus, Duration)`: wait for the given LRO status to receive with a timeout.
+1. `waitForCompletion(Duration)`: wait for the long-running operation to complete, for the given timeout duration.
+1. `waitUntil(LongRunningOperationStatus)`: wait until the given long-running operation status is received.
+1. `waitUntil(LongRunningOperationStatus, Duration)`: wait until the given long-running operation status is received, or until the given timeout duration expires.
 
 ## Asynchronous long-running operations
 

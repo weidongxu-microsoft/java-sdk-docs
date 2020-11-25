@@ -19,7 +19,45 @@ Both `SyncPoller` and `PollerFlux` are the client-side abstractions intended to 
 
 ## Synchronous long-running operations
 
-> TODO
+Calling a sync API for a long-running operation will initiate the LRO and immediately return a `SyncPoller` instance. The `SyncPoller` from such an API enables the user to monitor the progress of the LRO and retrieve the final result.
+
+The code below shows how to monitor LRO progress using `SyncPoller.`
+
+```java
+SyncPoller<UploadBlobProgress, UploadedBlobProperties> poller = syncClient.beginUploadFromUri(...)
+PollResponse<UploadBlobProgress> response;
+
+do {
+    response = poller.poll();
+    System.out.println("Status of long running upload operation: " + response.getStatus());
+    Duration pollInterval = response.getRetryAfter();
+    TimeUnit.MILLISECONDS.sleep(pollInterval.toMillis());
+} while (!response.getStatus().isComplete());
+```
+
+the sample uses the `poll` method to retrieve the long-running operation's progress. 
+
+The `getRetryAfter()` returns how long to wait before the next poll. Most of the Azure services return the poll-delay over HTTP response header (e.g. `retry-after` header); if the response does not contain poll-delay, then the duration given at the time of invoking LRO sync API is used.
+
+The above sample uses a `do..while` loop to repeatedly poll until the LRO is complete. `SyncPoller` has the convenience method `waitForCompletion,` which blocks the current thread until LRO finishes and returns the last poll response.
+
+```java
+PollResponse<UploadBlobProgress> response = poller.waitForCompletion();
+```
+
+If the last poll response indicates that the long-running operation has completed successfully, the final result can be retrieved using `getFinalResult()`.
+
+```java
+if (LongRunningOperationStatus.SUCCESSFULLY_COMPLETED == response.getStatus()) {
+    UploadedBlobProperties result = poller.getFinalResult();
+}
+```
+
+Other APIs in `SyncPoller` are:
+
+1. `waitForCompletion(Duration)`: wait for the LRO completion with a timeout. 
+1. `waitUntil(LongRunningOperationStatus)`: wait for the given LRO status to receive.
+1. `waitUntil(LongRunningOperationStatus, Duration)`: wait for the given LRO status to receive with a timeout.
 
 ## Asynchronous long-running operations
 

@@ -73,7 +73,7 @@ All Azure Java management libraries provide a `Manager` class as service API, fo
 
 Service API provides instances of resource collection API, for example, `computeManager.virtualMachines()` let you manage virtual machines in your Azure subscription.
 
-Resource collection API usually supports a `define` method to guide you in the task of provisioning a new Azure resource, a `list` method to iterate existing resource instances, a `get` method to find a specific  instance, and a `delete` method to delete it.
+Resource collection API usually supports a `define` method to guide you in the task of provisioning a new Azure resource, a `list` method to iterate existing resource instances, a `get` method to find a specific instance, and a `delete` method to delete it.
 
 ## Example
 

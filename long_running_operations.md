@@ -19,7 +19,7 @@ Both `SyncPoller` and `PollerFlux` are the client-side abstractions intended to 
 
 ## Synchronous long-running operations
 
-Calling a sync API for a long-running operation will initiate the LRO and immediately return a `SyncPoller` instance. The `SyncPoller` from such an API enables the user to monitor the progress of the LRO and retrieve the final result.
+Calling a sync API for a long-running operation will initiate the LRO and immediately return a `SyncPoller` instance. The `SyncPoller` enables monitoring the progress of the LRO and retrieval of the final result.
 
 The code below shows how to monitor LRO progress using `SyncPoller.`
 
@@ -35,11 +35,11 @@ do {
 } while (!response.getStatus().isComplete());
 ```
 
-the sample uses the `poll` method to retrieve the long-running operation's progress. 
+the sample uses the `poll` method to retrieve the long-running operation's progress. In this case, the status is printed to the console, but a better implementation would make relevant decisions based on this status.
 
-The `getRetryAfter()` returns how long to wait before the next poll. Most of the Azure services return the poll-delay over HTTP response header (e.g. `retry-after` header); if the response does not contain poll-delay, then the duration given at the time of invoking LRO sync API is used.
+The `getRetryAfter()` returns how long to wait before the next poll. Most of the Azure LRO return the poll-delay over HTTP response (e.g. `retry-after` header); if the response does not contain poll-delay, then the duration given at the time of invoking LRO sync API is used.
 
-The above sample uses a `do..while` loop to repeatedly poll until the LRO is complete. `SyncPoller` has the convenience method `waitForCompletion,` which blocks the current thread until LRO finishes and returns the last poll response.
+The above sample uses a `do..while` loop to repeatedly poll until the LRO is complete. If you're not interested in intermediate poll responses, you can use `waitForCompletion` method in `SyncPoller`, which blocks the current thread until LRO finishes and returns the last poll response.
 
 ```java
 PollResponse<UploadBlobProgress> response = poller.waitForCompletion();

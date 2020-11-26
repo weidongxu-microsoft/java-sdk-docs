@@ -40,5 +40,6 @@ By default, logging should be configured using an SLF4J-supported logging framew
 
 Now that you've been introduced to how logging works in the Azure SDK for Java, consider reviewing the links below for guidance on how to configure some of the more popular Java logging frameworks to work with SLF4J and the Java client libraries:
 
-- [Logback](logback.md)
-- [Log4J](log4j.md)
+* [java.util.logging](java-util-logging.md)
+* [Logback](logback.md)
+* [Log4J](log4j.md)

@@ -36,7 +36,9 @@ After the environment variable is set, restarting the application will enable th
 
 By default, logging should be configured using an SLF4J-supported logging framework. This starts by including a [relevant SLF4J logging implementation as a dependency from your project](http://www.slf4j.org/manual.html#projectDep), but then continues onward to configuring your logger to work as necessary in your environment (such as setting log levels, configuring which classes do and do not log, etc). Some examples are provided below, but for more detail, refer to the documentation for your chosen logging framework.
 
-### SLF4J configuration examples
+## Next steps
+
+Now that you've been introduced to how logging works in the Azure SDK for Java, consider reviewing the links below for guidance on how to configure some of the more popular Java logging frameworks to work with SLF4J and the Java client libraries:
 
 - [Logback](logback.md)
 - [Log4J](log4j.md)

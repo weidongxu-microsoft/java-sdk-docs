@@ -168,6 +168,20 @@ You will be able to configure either system assigned or user assigned identities
 
 Only user assigned identities are currently supported in AKS with the [AAD Pod Identity](https://github.com/Azure/aad-pod-identity) plugin. Please follow the instructions in the repo as it may change between versions.
 
+## Set up your environment for authentication on management libraries
+
+Azure Java management libraries shares all TokenCredential support provided by Azure Identity library.
+
+In addition to the TokenCredential, managmenet libaries requires the subscripition ID of your Azure subscription.
+
+Use the [Azure CLI][azure_cli] snippet below to get subscription IDs.
+
+```bash
+az account list
+```
+
+Use the `id` field for **AZURE\_SUBSCRIPTION\_ID** environment variables.
+
 <!-- LINKS -->
 [azure_cli]: https://docs.microsoft.com/cli/azure
 [azure_sub]: https://azure.microsoft.com/free/

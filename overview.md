@@ -41,7 +41,7 @@ All Azure Java client libraries follow the same API design pattern of offering a
 
 Because of these conventions, users of the Java client libraries should feel comfortable that all classes ending in `Client` will be immutable and provide operations to interact with an Azure service. All classes that end in `ClientBuilder` will provide operations to configure and create an instance of a particular client type.
 
-## Example
+### Client libraries example
 
 The code to create a synchronous Key Vault `KeyClient` would be similar to the following:
 
@@ -69,13 +69,13 @@ The management (or "management plane") libraries, all of which can be found in t
 
 With the management libraries, you can write configuration and deployment scripts to perform the same tasks that you can through the [Azure portal](https://portal.azure.com/) or the [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
 
-All Azure Java management libraries provide a `Manager` class as service API, for example, `ComputeManager` for Azure compute service, or `AzureResourceManager` for the aggregation of popular services. Authentication is required to create the service API.
+All Azure Java management libraries provide a `*Manager` class as service API, for example, `ComputeManager` for Azure compute service, or `AzureResourceManager` for the aggregation of popular services. 
 
-Service API provides instances of resource collection API, for example, `computeManager.virtualMachines()` let you manage virtual machines in your Azure subscription.
+The Service APIs provide instances of resource collection API, for example, `computeManager.virtualMachines()` let you manage virtual machines in your Azure subscription.
 
 Resource collection API usually supports a `define` method to guide you in the task of provisioning a new Azure resource, a `list` method to iterate existing resource instances, a `get` method to find a specific instance, and a `delete` method to delete it.
 
-## Example
+### Management libraries example
 
 The code to create a `ComputeManager` would be similar to the following:
 

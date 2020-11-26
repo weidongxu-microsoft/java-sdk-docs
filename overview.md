@@ -69,7 +69,39 @@ The management (or "management plane") libraries, all of which can be found in t
 
 With the management libraries, you can write configuration and deployment scripts to perform the same tasks that you can through the [Azure portal](https://portal.azure.com/) or the [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
 
-For details on working with each management library, see the README.md file located in the library's project folder in the [SDK GitHub repository](https://github.com/Azure/azure-sdk-for-java). You can also find additional code snippets in the [reference documentation](https://docs.microsoft.com/java/api) and the [Azure Samples](https://docs.microsoft.com/samples/browse/?products=azure&languages=java).
+All Azure Java management libraries provide a `Manager` class as service API, for example, `ComputeManager` for Azure compute service, or `AzureResourceManager` for the aggregation of popular services. Authentication is required to create the service API.
+
+Service API provides instances of resource collection API, for example, `computeManager.virtualMachines()` let you manage virtual machines in your Azure subscription.
+
+Resource collection API usually supports a `define` method to guide you in the task of provisioning a new Azure resource, a `list` method to iterate existing resource instances, a `get` method to find a specific instance, and a `delete` method to delete it.
+
+## Example
+
+The code to create a `ComputeManager` would be similar to the following:
+
+```java
+ComputeManager computeManager = ComputeManager
+    .authenticate(
+        new DefaultAzureCredentialBuilder().build(),
+        new AzureProfile(AzureEnvironment.AZURE));
+```
+
+The code to get an existing virtual machine would be similar to the following:
+
+```java
+VirtualMachine virtualMachine = computeManager.virtualMachines()
+    .getByResourceGroup(<your-resource-group>, <your-virtual-machine>);
+```
+
+The code to update the virtual machine and add a new data disk would be similar to the following:
+
+```java
+virtualMachine.update()
+    .withNewDataDisk(10)
+    .apply();
+```
+
+For details on working with each management library, see the README.md file located in the library's project folder in the [SDK GitHub repository](https://aka.ms/azsdk/java/mgmt). You can also find additional code snippets in the [reference documentation](https://docs.microsoft.com/java/api) and the [Azure Samples](https://docs.microsoft.com/samples/browse/?products=azure&languages=java).
 
 ## Get help and connect with the SDK team
 

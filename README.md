@@ -18,6 +18,7 @@ Planned structure is as follows:
     * [Examples](identity_examples.md)  
   * Logging
     * [Overview](logging.md)
+    * [java.util.logging](java-util-logging.md)
     * [Logback](logback.md)
     * [Log4J](log4j.md)
   * Integrations

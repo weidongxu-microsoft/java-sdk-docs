@@ -1,81 +1,39 @@
-# Use log4j logging framework
+---
+title: Logging with the log4j logging framework
+description: An overview of the Azure SDK for Java integration with log4j
+ms.date: 11/23/2020
+ms.topic: conceptual
+ms.custom: devx-track-java
+---
 
-For more information related to log4j, please refer [here](http://logging.apache.org/log4j/1.2/).
+# Logging with the Log4j logging framework
 
-**Adding maven dependencies**
+As mentioned in the [logging overview](logging.md), all Azure client libraries log through [SLF4J](http://www.slf4j.org/), and as such, logging frameworks such as [log4j](https://logging.apache.org/log4j/2.x/) can be used. Choosing which logging framework to use is outside of the scope of this document, but needless to say, often times the best choice is the one you probably already have, whether you know it or not, thanks to third party dependencies sometimes being opinionated in this regard.
 
-```xml
-<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-log4j12</artifactId>
-    <version>[1.0,)</version> <!-- Version number 1.0 and above -->
-</dependency>
-```
+This document provides guidance to use the Log4J 2.x releases, but Log4J 1.x is equally supported by the Azure SDK for Java. To enable log4j logging, developers must do two things:
 
-**Using property file**
+1. Include the log4j library as a dependency,
+2. Create a configuration file (either `log4j2.properties` or `log4j2.xml`) under the `/src/main/resources` project directory. 
 
-Usually, to enable log4j in property file, you can create `log4j.properties` under `./src/main/resource` directory of your project.
+For more information related to configuring log4j, please refer [here](https://logging.apache.org/log4j/2.x/manual/index.html)
 
-Log4j example:
+## Adding maven dependencies
 
-```properties
-log4j.rootLogger=INFO, A1
-log4j.appender.A1=org.apache.log4j.ConsoleAppender
-log4j.appender.A1.layout=org.apache.log4j.PatternLayout
-log4j.appender.A1.layout.ConversionPattern=%m%n
-log4j.logger.com.azure.core=ERROR
-```
-
-**Using xml**
-
-Usually, to enable log4j in property file, you can create `log4j.xml` under `./src/main/resource` directory of your project.
-
-log4j example:
+Adding the Maven dependency is simply a matter of including the following XML in the project Maven pom.xml file. Be sure to check online to see what the latest released version is, which at the time of this document being written was 2.14.0.
 
 ```xml
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-<log4j:configuration debug="true" xmlns:log4j='http://jakarta.apache.org/log4j/'>
-
-    <appender name="console" class="org.apache.log4j.ConsoleAppender">
-        <param name="Target" value="System.out"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%m%n" />
-        </layout>
-    </appender>
-    <logger name="com.azure.core">
-        <level value="ERROR" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <root>
-        <level value="info" />
-        <appender-ref ref="console" />
-    </root>
-
-</log4j:configuration>
-```
-
-### Use log4j2 logging framework
-
-For more information related to log4j2, please refer [here](https://logging.apache.org/log4j/2.x/manual/configuration.html).
-
-**Adding maven dependencies**
-
-```xml
-<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-slf4j-impl</artifactId>
-    <version>[2.0,)</version> <!-- Version number 2.0 and above -->
+    <version>2.14.0</version>
 </dependency>
 ```
 
-**Using property file**
+## Configuring Log4j
 
-Usually, to enable log4j2 in property file, you can create `log4j2.properties` under `./src/main/resource` directory of your project.
+### Using a property file
 
-Log4j2 example:
+A flat properties file, named `log4j2.properties` can be placed under the `/src/main/resource` directory of the project. This file will take the following form:
 
 ```properties
 appender.console.type = Console
@@ -90,17 +48,16 @@ rootLogger.appenderRefs = stdout
 rootLogger.appenderRef.stdout.ref = STDOUT
 ```
 
-**Using xml**
+### Using an XML file
 
-Usually, to enable log4j2 in property file, you can create `log4j2.xml` under `./src/main/resource` directory of your project.
+An XML file, named `log4j2.xml` can be placed under the `/src/main/resource` directory of the project. This file will take the following form:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout
-                pattern="%msg%n" />
+            <PatternLayout pattern="%msg%n" />
         </Console>
     </Appenders>
     <Loggers>
@@ -114,3 +71,8 @@ Usually, to enable log4j2 in property file, you can create `log4j2.xml` under `.
 </Configuration>
 ```
 
+## Next steps
+
+In this document we have discussed configuring Log4j and how to make the Azure SDK for Java log through this. Because the Azure SDK for Java works with all SLF4J logging frameworks, consider reviewing [the SLF4J documentation for further details](http://www.slf4j.org/manual.html). If you use Log4j, there is a vast amount of [configuration guidance](https://logging.apache.org/log4j/2.x/manual/index.html) on its website also.
+
+Once you have master logging, consider looking into the integrations that Azure offers into frameworks such as [Spring](https://docs.microsoft.com/azure/developer/java/spring-framework/spring-boot-starters-for-azure) and [MicroProfile](https://docs.microsoft.com/azure/developer/java/eclipse-microprofile/).

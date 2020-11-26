@@ -71,10 +71,6 @@ With the management libraries, you can write configuration and deployment script
 
 All Azure Java management libraries provide a `*Manager` class as service API, for example, `ComputeManager` for Azure compute service, or `AzureResourceManager` for the aggregation of popular services. 
 
-The Service APIs provide instances of resource collection API, for example, `computeManager.virtualMachines()` let you manage virtual machines in your Azure subscription.
-
-Resource collection API usually supports a `define` method to guide you in the task of provisioning a new Azure resource, a `list` method to iterate existing resource instances, a `get` method to find a specific instance, and a `delete` method to delete it.
-
 ### Management libraries example
 
 The code to create a `ComputeManager` would be similar to the following:
@@ -86,7 +82,22 @@ ComputeManager computeManager = ComputeManager
         new AzureProfile(AzureEnvironment.AZURE));
 ```
 
-The code to get an existing virtual machine would be similar to the following:
+The code to provision a new virtual machine would be similar to the following:
+```java
+VirtualMachine virtualMachine = computeManager.virtualMachines()
+    .define(<your-virtual-machine>)
+    .withRegion(Region.US_WEST)
+    .withExistingResourceGroup(<your-resource-group>)
+    .withNewPrimaryNetwork("10.0.0.0/28")
+    .withPrimaryPrivateIPAddressDynamic()
+    .withoutPrimaryPublicIPAddress()
+    .withPopularLinuxImage(KnownLinuxVirtualMachineImage.UBUNTU_SERVER_18_04_LTS)
+    .withRootUsername(<virtual-machine-username>)
+    .withSsh(<virtual-machine-ssh-key>)
+    .create();
+```
+
+The code to get an existing virtual machine would be:
 
 ```java
 VirtualMachine virtualMachine = computeManager.virtualMachines()

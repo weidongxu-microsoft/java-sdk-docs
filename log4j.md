@@ -15,7 +15,7 @@ This document provides guidance to use the Log4J 2.x releases, but Log4J 1.x is 
 1. Include the log4j library as a dependency,
 2. Create a configuration file (either `log4j2.properties` or `log4j2.xml`) under the `/src/main/resources` project directory. 
 
-For more information related to configuring log4j, please refer [here](https://logging.apache.org/log4j/2.x/manual/index.html)
+For more information related to configuring log4j, please refer [here](https://logging.apache.org/log4j/2.x/manual/index.html).
 
 ## Adding maven dependencies
 
@@ -40,6 +40,7 @@ appender.console.type = Console
 appender.console.name = STDOUT
 appender.console.layout.type = PatternLayout
 appender.console.layout.pattern = %msg%n
+
 logger.app.name=com.azure.core
 logger.app.level=ERROR
 

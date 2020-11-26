@@ -48,7 +48,7 @@ The code to create a synchronous Key Vault `KeyClient` would be similar to the f
 ```java
 KeyClient client = new KeyClientBuilder()
         .endpoint(<your-vault-url>)
-        .credential(new DefaultAzureCredential())
+        .credential(new DefaultAzureCredentialBuilder().build())
         .buildClient();
 ```
 
@@ -57,7 +57,7 @@ Similarly, to create an asynchronous Key Vault `KeyAsyncClient`, do the followin
 ```java
 KeyAsyncClient client = new KeyClientBuilder()
         .endpoint(<your-vault-url>)
-        .credential(new DefaultAzureCredential())
+        .credential(new DefaultAzureCredentialBuilder().build())
         .buildAsyncClient();
 ```
 

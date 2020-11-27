@@ -182,7 +182,16 @@ Alternatively, use the [Azure CLI][azure_cli] snippet below to get subscription 
 az account list --output table
 ```
 
-The subscription ID can be set to `AZURE_SUBSCRIPTION_ID` environment variables.
+The subscription ID can be set to environment variable `AZURE_SUBSCRIPTION_ID`.
+It will be picked up by `AzureProfile` as the default subscription ID, during the creation of `Manager` service API similar to the following code: 
+
+```java
+AzureResourceManager azureResourceManager = AzureResourceManager
+    .authenticate(
+        new DefaultAzureCredentialBuilder().build(),
+        new AzureProfile(AzureEnvironment.AZURE))
+    .withDefaultSubscription();
+```
 
 <!-- LINKS -->
 [azure_cli]: https://docs.microsoft.com/cli/azure

@@ -170,17 +170,19 @@ Only user assigned identities are currently supported in AKS with the [AAD Pod I
 
 ## Set up your environment for authentication on management libraries
 
-Azure Java management libraries shares all TokenCredential support provided by Azure Identity library.
+Azure Java management libraries share all `TokenCredential` support provided by Azure Identity library.
 
-In addition to the TokenCredential, managmenet libaries requires the subscripition ID of your Azure subscription.
+In addition to the `TokenCredential`, the subscription ID of your [Azure subscription](https://docs.microsoft.com/learn/modules/create-an-azure-account/4-multiple-subscriptions) is required by the management libraries for managing the Azure resources on that subscription.
 
-Use the [Azure CLI][azure_cli] snippet below to get subscription IDs.
+The subscription IDs can be find on the [Subscriptions page in the Azure portal](https://portal.azure.com/#blade/Microsoft_Azure_Billing/SubscriptionsBlade).
+
+Alternatively, use the [Azure CLI][azure_cli] snippet below to get subscription IDs.
 
 ```bash
-az account list
+az account list --output table
 ```
 
-Use the `id` field for **AZURE\_SUBSCRIPTION\_ID** environment variables.
+The subscription ID can be set to `AZURE_SUBSCRIPTION_ID` environment variables.
 
 <!-- LINKS -->
 [azure_cli]: https://docs.microsoft.com/cli/azure
